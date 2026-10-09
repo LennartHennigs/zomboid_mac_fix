@@ -6,6 +6,21 @@ ignored, double clicks needing four).
 > Unofficial community fix. Not affiliated with or endorsed by The Indie Stone.
 > It contains no game code or assets.
 
+## Quick check: is a window manager the cause?
+
+Before installing anything, quit utilities that watch the mouse system-wide, especially
+window managers such as **Magnet**, then start the game and click around.
+
+On my M4 MacBook (macOS 26, Project Zomboid build 42), with Magnet running, **22 of 37
+clicks were invisible to the game**. With Magnet quit and nothing else changed, **0 of 10
+clicks arrived as instant press/release pairs** and the game saw 9 of 10 (the tenth was a
+short click during loading). A Steam user reported the same fix on a Mac Mini M2, see
+[below](#reports-about-project-zomboid).
+
+If quitting your window manager solves it, you can stop there. If you need it running, or
+the problem persists, use the fix below. It makes the game tolerate late, batched mouse
+events whatever the cause.
+
 ## Install
 
 1. Quit Project Zomboid.
@@ -54,8 +69,8 @@ already up, so as far as the game is concerned the click never happened. The nex
 usually arrives as a separate event and gets through, which is why it feels like you have
 to click twice.
 
-Measured on an M4 MacBook in the main menu, without the fix, the log of the callbacks
-shows this pattern over and over:
+Measured on an M4 MacBook in the main menu, without the fix and with Magnet running, the
+log of the callbacks shows this pattern over and over:
 
 ```
 PRESS   t
