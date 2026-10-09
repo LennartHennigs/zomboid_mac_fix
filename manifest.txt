@@ -1,0 +1,2 @@
+Premain-Class: pzmousefix.Agent
+Can-Retransform-Classes: false
