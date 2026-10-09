@@ -46,8 +46,8 @@ its "pressed" and "released" edges by comparing that answer with the previous ti
 press/release events that GLFW also delivers, through the mouse-button callback, are put
 in a queue that nothing uses for clicks.
 
-On macOS those events reach the game in **batches**: the main thread only collects them
-occasionally. A short click (typically 30-130 ms) therefore arrives as a press **and**
+On macOS those events can reach the game in **batches** (why exactly is unclear, see below):
+the main thread only collects them occasionally. A short click (typically 30-130 ms) therefore arrives as a press **and**
 its release in the same instant. When the game polls right afterwards the button is
 already up, so as far as the game is concerned the click never happened. The next click
 usually arrives as a separate event and gets through, which is why it feels like you have
@@ -63,10 +63,28 @@ RELEASE t   held=0.2ms      <- press and release delivered together, never seen 
 
 **22 of 37 clicks (about 60%) were invisible to the game.** With the fix, all of them are seen.
 
-### Other reports
+### Same symptom in other Mac games
 
-I could not find an existing write-up of this exact cause, but there are related reports
-on the Steam forums:
+This is not unique to Project Zomboid. Players report exactly this ("I have to double
+click on everything") in other games on macOS, on both Apple Silicon and Intel Macs, with
+trackpads and mice:
+
+- [Have to double click on everything [Mac M1]](https://forum.paradoxplaza.com/forum/threads/have-to-double-click-on-everything-mac-m1.1509533/)
+  (Paradox forums: Cities: Skylines, Stellaris and Roguebook players, 2022-2023). The
+  workarounds mentioned there: toggling *Tap to click* off and on in the trackpad
+  settings, tabbing out of the game and clicking another window, unplugging headphones
+  from the jack, using a different USB mouse, or not touching the mouse while the game
+  starts. These are **not tested with Project Zomboid** and none of them is a permanent
+  fix, but they may help if you do not want to use the agent.
+
+That the symptom shows up across unrelated engines suggests that macOS sometimes hands
+mouse events to the game late and in bursts. Most games survive that. Project Zomboid does
+not, because it only looks at the button state once per tick.
+
+### Reports about Project Zomboid
+
+I could not find an existing write-up of this exact cause for PZ, but there are related
+reports on the Steam forums:
 
 - [Help! I have a mac mouse and cannot fight](https://steamcommunity.com/app/108600/discussions/0/3362406825530524234/):
   "PZ doesn't reliably sense a light tap on the trackpad; you need to use a firm press to
