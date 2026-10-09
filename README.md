@@ -26,19 +26,60 @@ Tested on Apple Silicon (M4), macOS 26, Project Zomboid build 42 (bundled Zulu J
 If the game or Steam is installed somewhere non-standard, set `PZ_CONTENTS` to the app's
 `Contents` folder before running `install.sh`.
 
-## What was wrong
+## The problem
 
-The game reads mouse buttons by *polling* `glfwGetMouseButton` once per game tick, and
-turns the result into "pressed/released" edges. It ignores the press/release events that
-GLFW delivers through its callback.
+On macOS, Project Zomboid ignores a large share of mouse clicks. Typical symptoms:
 
-On macOS those events reach the game in batches. A short click then arrives as a
-press **and** its release in the same instant, so by the time the game polls, the button
-is already up and the click never existed. The next click arrives normally, which is why
-it feels like you must click twice.
+- You click a button or inventory item and **nothing happens**. You click again and it works.
+- A double click only registers if you do it **four times**.
+- It happens in the menus and in-game, with the built-in trackpad and with external mice.
+- Light or quick taps seem to fail more often than firm, slow presses.
 
-Measured on an M4 MacBook in the main menu: **22 of 37 clicks (about 60%) were invisible
-to the game.**
+It is easy to mistake for a sluggish UI or a hardware problem. The input device is fine:
+the click does reach the game, but the game then throws it away.
+
+### Why it happens
+
+The game does not react to click events. It **polls** the button state: once per game
+tick it asks GLFW "is the left button down right now?" (`glfwGetMouseButton`) and builds
+its "pressed" and "released" edges by comparing that answer with the previous tick. The
+press/release events that GLFW also delivers, through the mouse-button callback, are put
+in a queue that nothing uses for clicks.
+
+On macOS those events reach the game in **batches**: the main thread only collects them
+occasionally. A short click (typically 30-130 ms) therefore arrives as a press **and**
+its release in the same instant. When the game polls right afterwards the button is
+already up, so as far as the game is concerned the click never happened. The next click
+usually arrives as a separate event and gets through, which is why it feels like you have
+to click twice.
+
+Measured on an M4 MacBook in the main menu, without the fix, the log of the callbacks
+shows this pattern over and over:
+
+```
+PRESS   t
+RELEASE t   held=0.2ms      <- press and release delivered together, never seen by the game
+```
+
+**22 of 37 clicks (about 60%) were invisible to the game.** With the fix, all of them are seen.
+
+### Other reports
+
+I could not find an existing write-up of this exact cause, but there are related reports
+on the Steam forums:
+
+- [Help! I have a mac mouse and cannot fight](https://steamcommunity.com/app/108600/discussions/0/3362406825530524234/):
+  "PZ doesn't reliably sense a light tap on the trackpad; you need to use a firm press to
+  get the click to register." This matches the behaviour described here.
+
+Separate Mac issues that are **not** what this fixes: the game not accepting clicks at
+all or having a misaligned cursor in fullscreen on M1 Macs (usually worked around with
+`fullscreen=false` in `~/Zomboid/options.ini`), for example
+[Can't even accept terms to start](https://steamcommunity.com/app/108600/discussions/0/3784750482946464430)
+and
+[Zomboid wont go past acknowledgment page on MacOS Sonoma](https://steamcommunity.com/app/108600/discussions/1/4522260786596649817).
+If your clicks land in the wrong place, that is a different bug. If they land correctly
+but only every other one works, this is the one.
 
 ## What the fix does
 
