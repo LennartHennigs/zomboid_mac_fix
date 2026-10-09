@@ -21,8 +21,14 @@ If quitting your window manager solves it, you can stop there. If you need it ru
 the problem persists, use the fix below. It makes the game tolerate late, batched mouse
 events whatever the cause.
 
-The fix was verified with Magnet running: in that run 10 of 19 clicks were instant
-press/release pairs, and the fix recovered all 10.
+The fix works **with or without** a window manager running, so you do not have to quit
+Magnet to use it:
+
+- **Magnet running:** 10 of 19 clicks were instant press/release pairs, and the fix
+  recovered all 10.
+- **Magnet quit:** 6 of 6 clicks were seen, none doubled or phantom. One of them was only
+  seen because of the fix, so the game can drop the odd click even without a window
+  manager. This was a small sample.
 
 ## Install
 
