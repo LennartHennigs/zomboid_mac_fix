@@ -33,6 +33,7 @@ On macOS, Project Zomboid ignores a large share of mouse clicks. Typical symptom
 - You click a button or inventory item and **nothing happens**. You click again and it works.
 - A double click only registers if you do it **four times**.
 - It happens in the menus and in-game, with the built-in trackpad and with external mice.
+- It was reported as new in build 42 (it did not happen in 41).
 - Light or quick taps seem to fail more often than firm, slow presses.
 
 It is easy to mistake for a sluggish UI or a hardware problem. The input device is fine:
@@ -85,6 +86,13 @@ not, because it only looks at the button state once per tick.
 
 I could not find an existing write-up of this exact cause for PZ, but there are related
 reports on the Steam forums:
+
+- [Double-click bug report, v42.20 (Mac Mini M2)](https://steamcommunity.com/app/108600/discussions/6/588433527532573235/):
+  every menu and in-game click needed a double click. The reporter says it did not happen
+  in v41, and found that **quitting the Magnet window-manager app fixed it**. Utilities
+  that watch the mouse system-wide (window managers, mouse remappers, screen tools) can
+  delay the events a game receives, which fits the batching described above. If you run
+  one, try quitting it before blaming the game.
 
 - [Help! I have a mac mouse and cannot fight](https://steamcommunity.com/app/108600/discussions/0/3362406825530524234/):
   "PZ doesn't reliably sense a light tap on the trackpad; you need to use a firm press to
